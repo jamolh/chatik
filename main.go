@@ -12,7 +12,11 @@ import (
 	"time"
 
 	"github.com/jamolh/chatik/config"
+	"github.com/jamolh/chatik/db"
+	"github.com/jamolh/chatik/handlers"
 	"github.com/julienschmidt/httprouter"
+
+	_ "github.com/joho/godotenv/autoload" // to load .env
 )
 
 var (
@@ -24,7 +28,9 @@ func main() {
 		configPath = flag.String("config", "./config.json", "path of the config file")
 		conf       = config.FromFile(*configPath)
 	)
+	fmt.Println("here we come", conf.Server)
 
+	initRoutes()
 	srv := &http.Server{
 		Addr:         conf.Server.Addr, //port,
 		ReadTimeout:  40 * time.Second,
@@ -32,6 +38,9 @@ func main() {
 		Handler:      router,
 	}
 
+	//time.Sleep(time.Minute) // wait for psql docker container will be started
+	db.Connect()
+	defer db.Close()
 	// TODO: do it better!
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
@@ -47,6 +56,7 @@ func main() {
 
 	log.Println("http server is running on port", conf.Server.Addr)
 	log.Fatal("Closing Server error:", srv.ListenAndServe())
+
 }
 
 // declaring our routes
@@ -67,7 +77,9 @@ func initRoutes() {
 		}
 	})
 
-	router.GET(path, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		fmt.Println("here")
+	router.GET("/", func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		fmt.Println("got empty request")
+		w.Write([]byte("i'm ok"))
 	})
+	router.POST("/v1/user/token", handlers.Register)
 }

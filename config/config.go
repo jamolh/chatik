@@ -13,6 +13,7 @@ var (
 	cfg Config
 )
 
+
 //FromFile parse config from config file
 func FromFile(path string) *Config {
 	b, err := ioutil.ReadFile(path)

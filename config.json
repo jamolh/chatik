@@ -1,0 +1,7 @@
+{
+    "server":{
+        "name":"chatik",
+        "addr":":50001"
+
+    }
+}

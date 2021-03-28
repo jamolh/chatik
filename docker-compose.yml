@@ -1,0 +1,55 @@
+version: "3"
+services:
+  server:
+    container_name: chatik
+    build:
+      context: . #chatik
+      dockerfile: Dockerfile
+    # env_file: .env
+    depends_on:
+      - postgres-database
+    networks:
+      - main_bridge
+    ports:
+    - "3000:50001"
+  postgres-database:
+    image: postgres:latest
+    container_name: full_db_postgres
+    environment:
+      - POSTGRES_USER=${DB_USER}  
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - DATABASE_HOST=${DB_HOST} 
+    restart: always
+    #env_file:
+      #- .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-database:/var/lib/postgresql/data
+    networks:
+      - main_bridge
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_container
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    depends_on:
+      - postgres-database
+    ports:
+      - "5050:80"
+    networks:
+      - main_bridge
+    restart: unless-stopped
+    
+volumes:
+  server:
+  postgres-database:
+
+
+# Networks to be created to facilitate communication between containers
+networks:
+  main_bridge:
+    driver: bridge
