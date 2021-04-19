@@ -34,7 +34,7 @@ func Connect() {
 	log.Println("------------DATABASE IS CONNECTED------------")
 }
 
-// Close before exit
+// Close connection before exit
 func Close() {
 	log.Println("db:Close closing db connection")
 	pool.Close()
